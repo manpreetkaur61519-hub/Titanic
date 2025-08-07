@@ -1,40 +1,32 @@
-# Age Distribution
-st.subheader("Age Distribution of Passengers")
-fig, ax = plt.subplots()
-sns.histplot(filtered_df["Age"].dropna(), kde=True, bins=30, ax=ax)
-ax.set_xlabel("Age")
-st.pyplot(fig)
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Survival Rate by Passenger Class
-st.subheader("Survival Rate by Passenger Class")
-fig, ax = plt.subplots()
-sns.barplot(data=df, x="Pclass", y="Survived", ci=None, ax=ax)
-ax.set_ylabel("Survival Rate")
-st.pyplot(fig)
+# Page Config
+st.set_page_config(page_title="Titanic EDA Dashboard", layout="wide")
 
-# Embarked Distribution
-st.subheader("Embarkation Port Distribution")
-fig, ax = plt.subplots()
-sns.countplot(data=filtered_df, x="Embarked", ax=ax)
-st.pyplot(fig)
+# Title
+st.title("🚢 Titanic Data Analytics Dashboard")
 
-# Survival by Age and Sex
-st.subheader("Survival by Age and Sex")
-fig, ax = plt.subplots()
-sns.boxplot(data=df, x="Survived", y="Age", hue="Sex", ax=ax)
-st.pyplot(fig)
+# Load Data
+df = pd.read_csv("cleaned_titanic.csv")
 
-# Fare Distribution
-st.subheader("Fare Distribution")
-fig, ax = plt.subplots()
-sns.histplot(data=filtered_df, x="Fare", kde=True, ax=ax)
-st.pyplot(fig)
+# Show Raw Data
+if st.checkbox("Show Raw Data"):
+    st.dataframe(df)
 
-# Correlation Heatmap
-st.subheader("Correlation Heatmap")
-corr = df[["Survived", "Pclass", "Age", "SibSp", "Parch", "Fare"]].corr()
-fig, ax = plt.subplots()
-sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax)
-st.pyplot(fig)
+# Sidebar Filters
+st.sidebar.header("Filter Options")
+gender = st.sidebar.selectbox("Select Gender", options=["All"] + list(df["Sex"].unique()))
+pclass = st.sidebar.selectbox("Select Passenger Class", options=["All"] + sorted(df["Pclass"].unique()))
 
+# Apply filters
+filtered_df = df.copy()
+if gender != "All":
+    filtered_df = filtered_df[filtered_df["Sex"] == gender]
+if pclass != "All":
+    filtered_df = filtered_df[filtered_df["Pclass"] == pclass]
+
+st.subheader("🎯 Filtered Data Preview")
 
