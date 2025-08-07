@@ -1,36 +1,40 @@
-# app.py
-
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Page Config
-st.set_page_config(page_title="Titanic EDA Dashboard", layout="wide")
-
-# Title
-st.title("🚢 Titanic Data Analytics Dashboard")
-
-# Load Data
-df = pd.read_csv("cleaned_titanic.csv")
-
-# Show Data
-if st.checkbox("Show Raw Data"):
-    st.dataframe(df)
-
-# Sidebar Filters
-st.sidebar.header("Filter Options")
-gender = st.sidebar.selectbox("Select Gender", options=df["Sex"].unique())
-pclass = st.sidebar.selectbox("Select Passenger Class", options=df["Pclass"].unique())
-
-# Apply filters
-filtered_df = df[(df["Sex"] == gender) & (df["Pclass"] == pclass)]
-
-st.subheader("Filtered Data Preview")
-st.write(filtered_df.head())
-
-# Visualization
-st.subheader("Survival Count by Gender")
+# Age Distribution
+st.subheader("Age Distribution of Passengers")
 fig, ax = plt.subplots()
-sns.countplot(data=filtered_df, x="Survived", hue="Sex", ax=ax)
+sns.histplot(filtered_df["Age"].dropna(), kde=True, bins=30, ax=ax)
+ax.set_xlabel("Age")
 st.pyplot(fig)
+
+# Survival Rate by Passenger Class
+st.subheader("Survival Rate by Passenger Class")
+fig, ax = plt.subplots()
+sns.barplot(data=df, x="Pclass", y="Survived", ci=None, ax=ax)
+ax.set_ylabel("Survival Rate")
+st.pyplot(fig)
+
+# Embarked Distribution
+st.subheader("Embarkation Port Distribution")
+fig, ax = plt.subplots()
+sns.countplot(data=filtered_df, x="Embarked", ax=ax)
+st.pyplot(fig)
+
+# Survival by Age and Sex
+st.subheader("Survival by Age and Sex")
+fig, ax = plt.subplots()
+sns.boxplot(data=df, x="Survived", y="Age", hue="Sex", ax=ax)
+st.pyplot(fig)
+
+# Fare Distribution
+st.subheader("Fare Distribution")
+fig, ax = plt.subplots()
+sns.histplot(data=filtered_df, x="Fare", kde=True, ax=ax)
+st.pyplot(fig)
+
+# Correlation Heatmap
+st.subheader("Correlation Heatmap")
+corr = df[["Survived", "Pclass", "Age", "SibSp", "Parch", "Fare"]].corr()
+fig, ax = plt.subplots()
+sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax)
+st.pyplot(fig)
+
+
